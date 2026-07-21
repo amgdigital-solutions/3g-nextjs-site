@@ -91,8 +91,15 @@ export function FilteredPropertyGrid({ properties }: Props) {
     }));
   }, [keywordFromUrl, developerFromUrl, minPriceFromUrl, maxPriceFromUrl, bedsFromUrl]);
 
+  // Extract unique locations from properties
   const locations = useMemo(() =>
     [...new Set(properties.map(p => p.location).filter((l): l is string => Boolean(l)))].sort(),
+    [properties]
+  );
+
+  // FIX: Extract unique developers from properties (dynamic)
+  const developers = useMemo(() =>
+    [...new Set(properties.map(p => p.developer_name).filter((d): d is string => Boolean(d)))].sort(),
     [properties]
   );
 
@@ -110,6 +117,7 @@ export function FilteredPropertyGrid({ properties }: Props) {
       <PropertyFilters
         onFilter={handleFilter}
         locations={locations}
+        developers={developers}
         totalCount={properties.length}
         filteredCount={filtered.length}
         initialKeyword={keywordFromUrl}
