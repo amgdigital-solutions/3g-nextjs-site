@@ -75,8 +75,8 @@ export function HeroCarousel({ properties, communities = [] }: HeroCarouselProps
 
   if (!currentProperty) {
     return (
-      <section className="relative h-screen w-full overflow-hidden bg-navy-900">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1600&q=80')] bg-cover bg-center opacity-40" />
+      <section className="relative h-screen w-full bg-navy-900">
+        <div className="absolute inset-0 overflow-hidden bg-[url('https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1600&q=80')] bg-cover bg-center opacity-40" />
         <div className="absolute inset-0 bg-gradient-to-r from-navy-900/90 via-navy-900/60 to-transparent" />
         <div className="relative z-10 flex items-center h-full px-4 sm:px-6 lg:px-12 xl:px-20 pt-[72px]">
           <div className="max-w-2xl">
@@ -91,12 +91,12 @@ export function HeroCarousel({ properties, communities = [] }: HeroCarouselProps
   }
 
   return (
-    <section className="relative h-screen w-full overflow-hidden bg-navy-900">
+    <section className="relative h-screen w-full bg-navy-900">
       {/* Background Images */}
       {slides.map((p, i) => (
         <div
           key={p.id}
-          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+          className={`absolute inset-0 overflow-hidden transition-opacity duration-1000 ease-in-out ${
             i === current ? "opacity-100 z-10" : "opacity-0 z-0"
           }`}
         >
@@ -269,7 +269,7 @@ function SearchBar({
         {isOpen && (
           <>
             <div className="fixed inset-0 z-40" onClick={closeDropdown} />
-            {/* FIX: Dropdown opens below the button (top-full) instead of above (bottom-full) */}
+            {/* Dropdown opens below the button */}
             <div className="absolute top-full left-0 mt-1 bg-navy-800 border border-white/10 rounded-lg overflow-hidden shadow-2xl z-50 min-w-[180px] py-1">
               <button
                 onClick={() => { onSelect(""); closeDropdown(); }}
@@ -371,7 +371,7 @@ function SearchBar({
             Search
           </button>
 
-          {/* More Filters - FIX: navigates to properties page */}
+          {/* More Filters */}
           <button
             onClick={goToProperties}
             className="flex items-center justify-center gap-1.5 px-3 py-3 text-white/50 hover:text-white transition-colors text-xs flex-shrink-0"
