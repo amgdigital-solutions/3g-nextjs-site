@@ -1,24 +1,31 @@
 "use client";
 
+import Image from "next/image";
 import { Phone, Mail, MessageCircle } from "lucide-react";
 
 export function MobileContactBar() {
   return (
     <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
-      {/* Agent Info Row */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-50">
-        <div className="flex items-center gap-3">
-          {/* 3G Logo */}
-          <div className="w-10 h-10 bg-navy-800 rounded-full flex items-center justify-center flex-shrink-0">
-            <span className="text-white font-serif text-sm font-bold">3G</span>
-          </div>
-          <div>
-            <div className="text-sm font-semibold text-navy-950">3G Real Estate</div>
-            <div className="text-[11px] text-gray-400">Licensed Property Broker</div>
+      {/* Agent Info Row — logo peeks out from top */}
+      <div className="flex items-center gap-3 px-4 py-2 border-b border-gray-50">
+        {/* 3G Logo — overlaps above the bar, no background */}
+        <div className="relative -mt-6 flex-shrink-0">
+          <div className="w-14 h-14 bg-white rounded-full shadow-md flex items-center justify-center p-1.5">
+            <Image
+              src="/images/logo-blue.png"
+              alt="3G Real Estate"
+              width={48}
+              height={48}
+              className="object-contain"
+            />
           </div>
         </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-semibold text-navy-950 truncate">3G Real Estate</div>
+          <div className="text-[11px] text-gray-400">Licensed Property Broker</div>
+        </div>
         {/* 3G Verified Badge */}
-        <span className="text-[10px] font-semibold text-navy-800 bg-navy-800/8 px-2.5 py-1 rounded-full border border-navy-800/15">
+        <span className="text-[10px] font-semibold text-navy-800 bg-navy-800/8 px-2.5 py-1 rounded-full border border-navy-800/15 flex-shrink-0">
           3G Verified
         </span>
       </div>
