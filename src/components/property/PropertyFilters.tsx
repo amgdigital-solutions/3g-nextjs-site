@@ -17,6 +17,7 @@ interface Filters {
 interface PropertyFiltersProps {
   onFilter: (filters: Filters) => void;
   locations: string[];
+  developers: string[];
   totalCount: number;
   filteredCount: number;
   initialKeyword?: string;
@@ -34,9 +35,8 @@ const priceRanges = [
 const bedroomOptions = ["Any", "Studio", "1", "2", "3", "4", "5+"];
 const bathroomOptions = ["Any", "1", "2", "3", "4+"];
 const propertyTypes = ["All", "Apartment", "Villa", "Townhouse", "Penthouse"];
-const developers = ["All", "Emaar", "Damac", "Nakheel", "Meraas", "Sobha", "Ellington", "Omniyat", "Azizi", "Danube"];
 
-export function PropertyFilters({ onFilter, locations, totalCount, filteredCount, initialKeyword = "" }: PropertyFiltersProps) {
+export function PropertyFilters({ onFilter, locations, developers, totalCount, filteredCount, initialKeyword = "" }: PropertyFiltersProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [filters, setFilters] = useState<Filters>({
     keyword: initialKeyword,
@@ -49,7 +49,6 @@ export function PropertyFilters({ onFilter, locations, totalCount, filteredCount
     developer: "",
   });
 
-  // Update keyword when initialKeyword changes (from URL)
   useEffect(() => {
     if (initialKeyword) {
       const newFilters = { ...filters, keyword: initialKeyword };
@@ -74,10 +73,8 @@ export function PropertyFilters({ onFilter, locations, totalCount, filteredCount
 
   return (
     <div className="space-y-4">
-      {/* Main Search Bar */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 sm:p-4">
         <div className="flex flex-col sm:flex-row gap-3">
-          {/* Keyword Search */}
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
@@ -89,7 +86,6 @@ export function PropertyFilters({ onFilter, locations, totalCount, filteredCount
             />
           </div>
 
-          {/* Location Dropdown */}
           <div className="relative sm:w-48">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <select
@@ -104,7 +100,6 @@ export function PropertyFilters({ onFilter, locations, totalCount, filteredCount
             </select>
           </div>
 
-          {/* Developer Dropdown */}
           <div className="relative sm:w-40">
             <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <select
@@ -112,13 +107,13 @@ export function PropertyFilters({ onFilter, locations, totalCount, filteredCount
               onChange={(e) => updateFilter("developer", e.target.value)}
               className="w-full pl-9 pr-8 py-3 bg-gray-50 border border-gray-100 rounded-lg text-sm focus:outline-none focus:border-navy-800 appearance-none cursor-pointer"
             >
+              <option value="">All Developers</option>
               {developers.map((dev) => (
-                <option key={dev} value={dev === "All" ? "" : dev}>{dev}</option>
+                <option key={dev} value={dev}>{dev}</option>
               ))}
             </select>
           </div>
 
-          {/* Toggle Advanced */}
           <button
             onClick={() => setShowAdvanced(!showAdvanced)}
             className={`flex items-center justify-center gap-2 px-5 py-3 rounded-lg text-sm font-medium transition-colors ${
@@ -133,10 +128,8 @@ export function PropertyFilters({ onFilter, locations, totalCount, filteredCount
           </button>
         </div>
 
-        {/* Advanced Filters */}
         {showAdvanced && (
           <div className="mt-4 pt-4 border-t border-gray-100 space-y-4">
-            {/* Property Type */}
             <div>
               <label className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1">
                 <Home className="w-3.5 h-3.5" /> Property Type
@@ -158,7 +151,6 @@ export function PropertyFilters({ onFilter, locations, totalCount, filteredCount
               </div>
             </div>
 
-            {/* Bedrooms & Bathrooms */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1">
@@ -203,7 +195,6 @@ export function PropertyFilters({ onFilter, locations, totalCount, filteredCount
               </div>
             </div>
 
-            {/* Price Range */}
             <div>
               <label className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1">
                 <DollarSign className="w-3.5 h-3.5" /> Price Range
@@ -238,7 +229,6 @@ export function PropertyFilters({ onFilter, locations, totalCount, filteredCount
               </div>
             </div>
 
-            {/* Clear */}
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
@@ -251,7 +241,6 @@ export function PropertyFilters({ onFilter, locations, totalCount, filteredCount
         )}
       </div>
 
-      {/* Results Count */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-gray-500">
           Showing <span className="font-semibold text-navy-950">{filteredCount}</span> of <span className="font-semibold text-navy-950">{totalCount}</span> properties
