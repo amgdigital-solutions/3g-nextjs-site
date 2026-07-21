@@ -226,6 +226,10 @@ function SearchBar({
     router.push(url);
   };
 
+  const goToProperties = () => {
+    router.push("/properties");
+  };
+
   const toggleDropdown = (name: string) => {
     setOpenDropdown(openDropdown === name ? null : name);
   };
@@ -265,10 +269,11 @@ function SearchBar({
         {isOpen && (
           <>
             <div className="fixed inset-0 z-40" onClick={closeDropdown} />
-            <div className="absolute bottom-full left-0 mb-1 bg-navy-800 border border-white/10 rounded-lg overflow-hidden shadow-2xl z-50 min-w-[160px] py-1">
+            {/* FIX: Dropdown opens below the button (top-full) instead of above (bottom-full) */}
+            <div className="absolute top-full left-0 mt-1 bg-navy-800 border border-white/10 rounded-lg overflow-hidden shadow-2xl z-50 min-w-[180px] py-1">
               <button
                 onClick={() => { onSelect(""); closeDropdown(); }}
-                className={`w-full px-4 py-2 text-left text-sm hover:bg-white/10 transition-colors ${!value ? "text-gold" : "text-white"}`}
+                className={`w-full px-4 py-2.5 text-left text-sm hover:bg-white/10 transition-colors ${!value ? "text-gold" : "text-white"}`}
               >
                 {name === "developer" ? "All Developers" : name === "price" ? "Any Price" : "Any"}
               </button>
@@ -276,7 +281,7 @@ function SearchBar({
                 <button
                   key={opt}
                   onClick={() => { onSelect(opt); closeDropdown(); }}
-                  className={`w-full px-4 py-2 text-left text-sm hover:bg-white/10 transition-colors ${value === opt ? "text-gold" : "text-white"}`}
+                  className={`w-full px-4 py-2.5 text-left text-sm hover:bg-white/10 transition-colors ${value === opt ? "text-gold" : "text-white"}`}
                 >
                   {opt}
                 </button>
@@ -291,7 +296,7 @@ function SearchBar({
   return (
     <div className="absolute bottom-0 left-0 right-0 z-40 flex justify-center px-4 sm:px-6 lg:px-12 xl:px-20 pb-4 sm:pb-6">
       <div className="w-full lg:max-w-[70%] min-w-0">
-        {/* === MOBILE: Simple Search Bar (Image 1 style) === */}
+        {/* === MOBILE: Simple Search Bar === */}
         <div className="flex lg:hidden items-center gap-2 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl px-4 py-3">
           <Search className="w-5 h-5 text-white/40 flex-shrink-0" />
           <input
@@ -311,7 +316,7 @@ function SearchBar({
         </div>
 
         {/* === DESKTOP: Full Filter Bar with Dropdowns === */}
-        <div className="hidden lg:flex items-center bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl divide-x divide-white/10 overflow-hidden">
+        <div className="hidden lg:flex items-center bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl divide-x divide-white/10 overflow-visible">
           {/* Location Input */}
           <div className="flex-1 min-w-0 flex items-center gap-2 px-4 py-3">
             <MapPin className="w-4 h-4 text-white/40 flex-shrink-0" />
@@ -366,16 +371,14 @@ function SearchBar({
             Search
           </button>
 
-          {/* More Filters */}
-          {communityNames.length > 0 && (
-            <button
-              onClick={() => { /* could expand community filter */ }}
-              className="flex items-center justify-center gap-1.5 px-3 py-3 text-white/50 hover:text-white transition-colors text-xs flex-shrink-0"
-            >
-              <SlidersHorizontal className="w-3.5 h-3.5" />
-              <span>More</span>
-            </button>
-          )}
+          {/* More Filters - FIX: navigates to properties page */}
+          <button
+            onClick={goToProperties}
+            className="flex items-center justify-center gap-1.5 px-3 py-3 text-white/50 hover:text-white transition-colors text-xs flex-shrink-0"
+          >
+            <SlidersHorizontal className="w-3.5 h-3.5" />
+            <span>More</span>
+          </button>
         </div>
 
         {/* Helper text */}
@@ -386,5 +389,3 @@ function SearchBar({
     </div>
   );
 }
-
-
