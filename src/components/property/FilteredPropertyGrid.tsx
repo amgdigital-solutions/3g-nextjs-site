@@ -21,64 +21,105 @@ interface Props {
   properties: Property[];
 }
 
-function bedroomMatches(propBeds: string | number | null, filterBeds: string): boolean {
-  if (!propBeds || !filterBeds) return false;
-  const propStr = String(propBeds).trim();
-  const filterNum = Number(filterBeds);
-  if (isNaN(filterNum)) {
-    // Filter is "Studio" or non-numeric
-    return propStr.toLowerCase() === filterBeds.toLowerCase();
-  }
+// ROBUST: bedroom matching that handles numbers, strings, ranges, null
+function bedroomMatch(propBeds: unknown, filterVal: string): boolean {
+  if (!filterVal) return true; // no filter = match all
+  if (!propBeds) return false; // property has no beds data = no match
 
-  // Property has range like "1-5", "3-4", "Studio-3"
+  const filterNum = Number(filterVal);
+  if (isNaN(filterNum) && filterVal !== "Studio") return true; // invalid filter
+
+  const propStr = String(propBeds).trim();
+  if (!propStr) return false;
+
+  // Range like "1-5" or "Studio-3"
   if (propStr.includes("-")) {
     const parts = propStr.split("-");
     const min = parts[0].toLowerCase() === "studio" ? 0 : Number(parts[0]);
     const max = parts[1].toLowerCase() === "studio" ? 0 : Number(parts[1]);
     if (!isNaN(min) && !isNaN(max)) {
+      if (filterVal === "Studio") return min === 0;
+      if (filterVal === "4" || filterVal === "4+") return max >= 4;
       return filterNum >= min && filterNum <= max;
     }
   }
 
   // Single value like "3" or "Studio"
   const propNum = propStr.toLowerCase() === "studio" ? 0 : Number(propBeds);
-  if (filterBeds === "4" || filterBeds === "4+") return propNum >= 4;
+  if (filterVal === "Studio") return propNum === 0;
+  if (filterVal === "4" || filterVal === "4+") return propNum >= 4;
   return propNum === filterNum;
 }
 
-function matchesFilters(property: Property, filters: FilterState): boolean {
+function matchProperty(property: Property, filters: FilterState): boolean {
+  // Keyword
   if (filters.keyword) {
     const kw = filters.keyword.toLowerCase();
-    const searchable = `${property.title} ${property.description || ""} ${property.location || ""} ${property.property_type || ""}`.toLowerCase();
-    if (!searchable.includes(kw)) return false;
+    const text = `${property.title || ""} ${property.description || ""} ${property.location || ""} ${property.developer_name || ""}`.toLowerCase();
+    if (!text.includes(kw)) return false;
   }
+
+  // Location
   if (filters.location && property.location !== filters.location) return false;
+
+  // Property Type
   if (filters.propertyType && property.property_type !== filters.propertyType) return false;
-  if (filters.minPrice && property.price && property.price < Number(filters.minPrice)) return false;
-  if (filters.maxPrice && property.price && property.price > Number(filters.maxPrice)) return false;
+
+  // Developer
   if (filters.developer) {
     const dev = property.developer_name || "";
     if (!dev.toLowerCase().includes(filters.developer.toLowerCase())) return false;
   }
+
+  // Price
+  if (filters.minPrice && property.price && property.price < Number(filters.minPrice)) return false;
+  if (filters.maxPrice && property.price && property.price > Number(filters.maxPrice)) return false;
+
+  // Bedrooms - use robust matcher
   if (filters.bedrooms) {
-    if (!bedroomMatches(property.bedrooms, filters.bedrooms)) return false;
+    if (!bedroomMatch(property.bedrooms, filters.bedrooms)) return false;
   }
+
+  // Bathrooms
   if (filters.bathrooms) {
-    const baths = property.bathrooms || 0;
+    const baths = Number(property.bathrooms) || 0;
     if (filters.bathrooms === "4+") { if (baths < 4) return false; }
-    else if (baths !== Number(filters.bathrooms)) return false;
+    else if (String(baths) !== filters.bathrooms) return false;
   }
+
   return true;
 }
 
 export function FilteredPropertyGrid({ properties }: Props) {
   const searchParams = useSearchParams();
 
-  const keywordFromUrl = searchParams.get("keyword") || "";
-  const developerFromUrl = searchParams.get("developer") || "";
-  const minPriceFromUrl = searchParams.get("min_price") || "";
-  const maxPriceFromUrl = searchParams.get("max_price") || "";
-  const bedsFromUrl = searchParams.get("beds") || "";
+  const urlKeyword = searchParams.get("keyword") || "";
+  const urlDeveloper = searchParams.get("developer") || "";
+  const urlMinPrice = searchParams.get("min_price") || "";
+  const urlMaxPrice = searchParams.get("max_price") || "";
+  const urlBeds = searchParams.get("beds") || "";
+
+  const [filters, setFilters] = useState<FilterState>({
+    keyword: urlKeyword,
+    minPrice: urlMinPrice,
+    maxPrice: urlMaxPrice,
+    bedrooms: urlBeds,
+    bathrooms: "",
+    location: "",
+    propertyType: "",
+    developer: urlDeveloper,
+  });
+
+  useEffect(() => {
+    setFilters(prev => ({
+      ...prev,
+      keyword: urlKeyword,
+      developer: urlDeveloper,
+      minPrice: urlMinPrice,
+      maxPrice: urlMaxPrice,
+      bedrooms: urlBeds,
+    }));
+  }, [urlKeyword, urlDeveloper, urlMinPrice, urlMaxPrice, urlBeds]);
 
   const locations = useMemo(() =>
     [...new Set(properties.map(p => p.location).filter((l): l is string => Boolean(l)))].sort(),
@@ -90,36 +131,8 @@ export function FilteredPropertyGrid({ properties }: Props) {
     [properties]
   );
 
-  // Build initial filters from URL params directly
-  const initialFilters: FilterState = {
-    keyword: keywordFromUrl,
-    minPrice: minPriceFromUrl,
-    maxPrice: maxPriceFromUrl,
-    bedrooms: bedsFromUrl,
-    bathrooms: "",
-    location: "",
-    propertyType: "",
-    developer: developerFromUrl,
-  };
-
-  const [filters, setFilters] = useState<FilterState>(initialFilters);
-
-  // Re-sync when URL changes
-  useEffect(() => {
-    setFilters({
-      keyword: keywordFromUrl,
-      minPrice: minPriceFromUrl,
-      maxPrice: maxPriceFromUrl,
-      bedrooms: bedsFromUrl,
-      bathrooms: filters.bathrooms,
-      location: filters.location,
-      propertyType: filters.propertyType,
-      developer: developerFromUrl,
-    });
-  }, [keywordFromUrl, developerFromUrl, minPriceFromUrl, maxPriceFromUrl, bedsFromUrl]);
-
   const filtered = useMemo(() =>
-    properties.filter(p => matchesFilters(p, filters)),
+    properties.filter(p => matchProperty(p, filters)),
     [properties, filters]
   );
 
@@ -131,7 +144,7 @@ export function FilteredPropertyGrid({ properties }: Props) {
         developers={developers}
         totalCount={properties.length}
         filteredCount={filtered.length}
-        initialKeyword={keywordFromUrl}
+        initialKeyword={urlKeyword}
       />
       {filtered.length === 0 ? (
         <div className="text-center py-16 bg-white rounded-xl border border-gray-100">
