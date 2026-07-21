@@ -22,8 +22,10 @@ export function Navbar() {
   const isHomePage = pathname === "/";
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const handleScroll = () => setScrolled(window.scrollY > 50);
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -39,12 +41,16 @@ export function Navbar() {
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
-  const isDark = !isHomePage || scrolled;
+  // FIX: Before mount, always transparent on homepage. After mount, use scroll logic.
+  // This prevents the white flash on initial load.
+  const isDark = !mounted ? false : (!isHomePage || scrolled);
 
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        className={`fixed top-0 left-0 right-0 z-50 ${
+          mounted ? "transition-all duration-500" : ""
+        } ${
           isDark
             ? "bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100"
             : "bg-transparent"
@@ -129,7 +135,7 @@ export function Navbar() {
               </button>
             </div>
 
-            {/* Nav Grid — Full Width Glass Effect */}
+            {/* Nav Grid */}
             <nav className="grid grid-cols-1 gap-3 flex-1 content-start">
               {navLinks.map((link) => (
                 <Link
