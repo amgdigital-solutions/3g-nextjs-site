@@ -4,7 +4,6 @@ import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { PropertyCard } from "./PropertyCard";
 import { PropertyFilters } from "./PropertyFilters";
-import { PropertyGridSkeleton } from "../shared/Skeleton";
 import type { Property } from "@/types";
 
 interface FilterState {
@@ -22,8 +21,31 @@ interface Props {
   properties: Property[];
 }
 
+// FIX: Helper to check if filter number falls within a property's bedroom range
+function bedroomMatches(propBeds: string | number | null, filterBeds: string): boolean {
+  if (!propBeds) return false;
+  const propStr = String(propBeds);
+  const filterNum = Number(filterBeds);
+
+  // If property has a range like "1-5", "3-4", "Studio-3"
+  if (propStr.includes("-")) {
+    const parts = propStr.split("-");
+    // Handle "Studio-3" -> min=0, max=3
+    const min = parts[0].toLowerCase() === "studio" ? 0 : Number(parts[0]);
+    const max = parts[1].toLowerCase() === "studio" ? 0 : Number(parts[1]);
+    if (!isNaN(min) && !isNaN(max)) {
+      return filterNum >= min && filterNum <= max;
+    }
+  }
+
+  // If property has a single number like "3" or "Studio"
+  const propNum = propStr.toLowerCase() === "studio" ? 0 : Number(propBeds);
+  if (filterBeds === "Studio") return propNum === 0;
+  if (filterBeds === "4" || filterBeds === "4+") return propNum >= 4;
+  return propNum === filterNum;
+}
+
 function matchesFilters(property: Property, filters: FilterState, keywordFromUrl: string): boolean {
-  // Combine typed keyword + URL keyword
   const kw = (filters.keyword || keywordFromUrl).toLowerCase();
   if (kw) {
     const searchable = `${property.title} ${property.description || ""} ${property.location || ""} ${property.property_type || ""}`.toLowerCase();
@@ -31,7 +53,6 @@ function matchesFilters(property: Property, filters: FilterState, keywordFromUrl
   }
 
   if (filters.location && property.location !== filters.location) return false;
-
   if (filters.propertyType && property.property_type !== filters.propertyType) return false;
 
   if (filters.minPrice && property.price && property.price < Number(filters.minPrice)) return false;
@@ -42,11 +63,9 @@ function matchesFilters(property: Property, filters: FilterState, keywordFromUrl
     if (!dev.toLowerCase().includes(filters.developer.toLowerCase())) return false;
   }
 
+  // FIX: Use range-aware bedroom matching
   if (filters.bedrooms) {
-    const beds = property.bedrooms || 0;
-    if (filters.bedrooms === "Studio") { if (beds !== 0) return false; }
-    else if (filters.bedrooms === "4" || filters.bedrooms === "4+") { if (beds < 4) return false; }
-    else if (beds !== Number(filters.bedrooms)) return false;
+    if (!bedroomMatches(property.bedrooms, filters.bedrooms)) return false;
   }
 
   if (filters.bathrooms) {
@@ -61,7 +80,6 @@ function matchesFilters(property: Property, filters: FilterState, keywordFromUrl
 export function FilteredPropertyGrid({ properties }: Props) {
   const searchParams = useSearchParams();
 
-  // Read URL params from hero search
   const keywordFromUrl = searchParams.get("keyword") || "";
   const developerFromUrl = searchParams.get("developer") || "";
   const minPriceFromUrl = searchParams.get("min_price") || "";
@@ -79,7 +97,6 @@ export function FilteredPropertyGrid({ properties }: Props) {
     developer: "",
   });
 
-  // Sync URL params into filters on mount
   useEffect(() => {
     setFilters(prev => ({
       ...prev,
@@ -91,13 +108,11 @@ export function FilteredPropertyGrid({ properties }: Props) {
     }));
   }, [keywordFromUrl, developerFromUrl, minPriceFromUrl, maxPriceFromUrl, bedsFromUrl]);
 
-  // Extract unique locations from properties
   const locations = useMemo(() =>
     [...new Set(properties.map(p => p.location).filter((l): l is string => Boolean(l)))].sort(),
     [properties]
   );
 
-  // FIX: Extract unique developers from properties (dynamic)
   const developers = useMemo(() =>
     [...new Set(properties.map(p => p.developer_name).filter((d): d is string => Boolean(d)))].sort(),
     [properties]
