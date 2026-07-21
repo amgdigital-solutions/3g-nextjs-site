@@ -132,19 +132,14 @@ function SearchBar({ developers }: { developers: string[]; }) {
     const params = new URLSearchParams();
     if (location) params.set("keyword", location);
     if (selectedDev) params.set("developer", selectedDev);
-
-    // FIX: Send price min/max from label lookup
     if (selectedPriceLabel) {
       const range = PRICE_RANGES.find(p => p.label === selectedPriceLabel);
       if (range) { if (range.min) params.set("min_price", range.min); if (range.max) params.set("max_price", range.max); }
     }
-
-    // FIX: Send bed VALUE (not label) — lookup from label
     if (selectedBedsLabel) {
       const bed = BEDROOMS.find(b => b.label === selectedBedsLabel);
-      if (bed && bed.value) params.set("beds", bed.value);
+      if (bed?.value) params.set("beds", bed.value);
     }
-
     router.push(params.toString() ? `/properties?${params.toString()}` : "/properties");
   };
 
@@ -163,11 +158,11 @@ function SearchBar({ developers }: { developers: string[]; }) {
         {isOpen && (
           <>
             <div className="fixed inset-0 z-40" onClick={closeDropdown} />
-            {/* Glass effect dropdown with dark text, opens UPWARD */}
-            <div className="absolute bottom-full left-0 mb-1 bg-white/95 backdrop-blur-xl border border-white/30 rounded-xl overflow-hidden shadow-2xl z-50 min-w-[220px] max-h-[350px] overflow-y-auto py-2">
-              <button onClick={() => { onSelect(""); closeDropdown(); }} className={`w-full px-5 py-3 text-left text-sm hover:bg-gray-50 transition-colors ${!displayValue ? "text-navy-900 font-semibold" : "text-gray-600"}`}>{name === "developer" ? "All Developers" : "Any"}</button>
+            {/* REAL GLASS: semi-transparent navy with backdrop blur */}
+            <div className="absolute bottom-full left-0 mb-2 bg-navy-900/70 backdrop-blur-2xl border border-white/20 rounded-xl shadow-2xl z-50 min-w-[240px] max-h-[320px] overflow-y-auto py-2">
+              <button onClick={() => { onSelect(""); closeDropdown(); }} className={`w-full px-5 py-3 text-left text-sm transition-colors ${!displayValue ? "text-gold font-semibold" : "text-white/80 hover:text-white"}`}>{name === "developer" ? "All Developers" : "Any"}</button>
               {options.map((opt) => (
-                <button key={opt} onClick={() => { onSelect(opt); closeDropdown(); }} className={`w-full px-5 py-3 text-left text-sm hover:bg-gray-50 transition-colors ${displayValue === opt ? "text-navy-900 font-semibold" : "text-gray-600"}`}>{opt}</button>
+                <button key={opt} onClick={() => { onSelect(opt); closeDropdown(); }} className={`w-full px-5 py-3 text-left text-sm transition-colors ${displayValue === opt ? "text-gold font-semibold" : "text-white/80 hover:text-white"}`}>{opt}</button>
               ))}
             </div>
           </>
