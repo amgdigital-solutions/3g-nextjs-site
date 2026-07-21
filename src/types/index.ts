@@ -9,10 +9,16 @@ export interface Property {
   location: string | null;
   property_type: string | null;
   status: string | null;
-  bedrooms: string | number | null;  // can be "1-5" range or 3
-  bathrooms: string | number | null;  // can be range
-  area_sqft: string | number | null;  // can be range
-  parking: string | number | null;    // can be range
+  // NEW: min/max columns for reliable filtering
+  beds_min: number | null;
+  beds_max: number | null;
+  baths_min: number | null;
+  baths_max: number | null;
+  // Legacy fields (kept for backward compatibility)
+  bedrooms: string | number | null;
+  bathrooms: string | number | null;
+  area_sqft: string | number | null;
+  parking: string | number | null;
   featured: boolean;
   images: string[] | null;
   amenities: string[] | null;
@@ -61,7 +67,7 @@ export interface Community {
   slug: string;
   description: string | null;
   short_description: string | null;
-  image: string[] | null;
+  image: string | string[] | null;
   gallery: string[] | null;
   location: string | null;
   avg_price: string | null;
