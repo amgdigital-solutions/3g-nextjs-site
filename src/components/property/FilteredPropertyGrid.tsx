@@ -21,72 +21,63 @@ interface Props {
   properties: Property[];
 }
 
-// ROBUST: bedroom matching that handles numbers, strings, ranges, null
-function bedroomMatch(propBeds: unknown, filterVal: string): boolean {
-  if (!filterVal) return true; // no filter = match all
-  if (!propBeds) return false; // property has no beds data = no match
-
+// NEW: Use beds_min/max columns — simple, reliable number comparison
+function bedroomMatch(property: Property, filterVal: string): boolean {
+  if (!filterVal) return true;
   const filterNum = Number(filterVal);
-  if (isNaN(filterNum) && filterVal !== "Studio") return true; // invalid filter
+  if (isNaN(filterNum)) return true;
 
-  const propStr = String(propBeds).trim();
-  if (!propStr) return false;
+  const min = property.beds_min;
+  const max = property.beds_max;
 
-  // Range like "1-5" or "Studio-3"
-  if (propStr.includes("-")) {
-    const parts = propStr.split("-");
-    const min = parts[0].toLowerCase() === "studio" ? 0 : Number(parts[0]);
-    const max = parts[1].toLowerCase() === "studio" ? 0 : Number(parts[1]);
-    if (!isNaN(min) && !isNaN(max)) {
-      if (filterVal === "Studio") return min === 0;
-      if (filterVal === "4" || filterVal === "4+") return max >= 4;
-      return filterNum >= min && filterNum <= max;
+  // If no min/max data, fall back to legacy bedrooms field
+  if (min === null || max === null) {
+    const legacy = String(property.bedrooms || "");
+    if (!legacy) return false;
+    if (legacy.includes("-")) {
+      const parts = legacy.split("-");
+      const lMin = parts[0].toLowerCase() === "studio" ? 0 : Number(parts[0]);
+      const lMax = parts[1].toLowerCase() === "studio" ? 0 : Number(parts[1]);
+      if (!isNaN(lMin) && !isNaN(lMax)) return filterNum >= lMin && filterNum <= lMax;
     }
+    const lNum = legacy.toLowerCase() === "studio" ? 0 : Number(property.bedrooms);
+    return filterNum === lNum;
   }
 
-  // Single value like "3" or "Studio"
-  const propNum = propStr.toLowerCase() === "studio" ? 0 : Number(propBeds);
-  if (filterVal === "Studio") return propNum === 0;
-  if (filterVal === "4" || filterVal === "4+") return propNum >= 4;
-  return propNum === filterNum;
+  // Clean min/max logic: filterNum must be within [min, max]
+  return filterNum >= min && filterNum <= max;
 }
 
 function matchProperty(property: Property, filters: FilterState): boolean {
-  // Keyword
   if (filters.keyword) {
     const kw = filters.keyword.toLowerCase();
     const text = `${property.title || ""} ${property.description || ""} ${property.location || ""} ${property.developer_name || ""}`.toLowerCase();
     if (!text.includes(kw)) return false;
   }
-
-  // Location
   if (filters.location && property.location !== filters.location) return false;
-
-  // Property Type
   if (filters.propertyType && property.property_type !== filters.propertyType) return false;
-
-  // Developer
   if (filters.developer) {
     const dev = property.developer_name || "";
     if (!dev.toLowerCase().includes(filters.developer.toLowerCase())) return false;
   }
-
-  // Price
   if (filters.minPrice && property.price && property.price < Number(filters.minPrice)) return false;
   if (filters.maxPrice && property.price && property.price > Number(filters.maxPrice)) return false;
-
-  // Bedrooms - use robust matcher
   if (filters.bedrooms) {
-    if (!bedroomMatch(property.bedrooms, filters.bedrooms)) return false;
+    if (!bedroomMatch(property, filters.bedrooms)) return false;
   }
-
-  // Bathrooms
   if (filters.bathrooms) {
-    const baths = Number(property.bathrooms) || 0;
-    if (filters.bathrooms === "4+") { if (baths < 4) return false; }
-    else if (String(baths) !== filters.bathrooms) return false;
+    const filterNum = Number(filters.bathrooms);
+    if (!isNaN(filterNum)) {
+      const min = property.baths_min;
+      const max = property.baths_max;
+      if (min !== null && max !== null) {
+        if (!(filterNum >= min && filterNum <= max)) return false;
+      } else {
+        const legacy = Number(property.bathrooms);
+        if (!isNaN(legacy) && legacy !== filterNum) return false;
+      }
+    }
   }
-
   return true;
 }
 
