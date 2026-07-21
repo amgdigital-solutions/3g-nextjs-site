@@ -5,6 +5,97 @@ import Image from "next/image";
 import { useCompare } from "@/lib/compare-context";
 import { X, GitCompare, MapPin, Bed, Bath, Square, Check, Minus, Star, ArrowRight, Phone, MessageCircle, TrendingUp, Calendar, Building2, BadgeCheck } from "lucide-react";
 
+// ─── Amenity Normalization ───
+// Maps variations like "Swimming Pool" and "Swimming Pools" to one canonical form
+const AMENITY_SYNONYMS: Record<string, string> = {
+  // Swimming Pool variations
+  "swimming pools": "Swimming Pool",
+  "swimming pool": "Swimming Pool",
+  // Children Play Area variations
+  "childrens play area": "Children's Play Area",
+  "children play area": "Children's Play Area",
+  "children's play area": "Children's Play Area",
+  "kids play area": "Children's Play Area",
+  "kids' play area": "Children's Play Area",
+  // Fitness variations
+  "fitness centre": "Fitness Center",
+  "fitness center": "Fitness Center",
+  "gym": "Fitness Center",
+  "fitness": "Fitness Center",
+  // Parking variations
+  "car parking": "Parking",
+  "covered parking": "Parking",
+  "secure parking": "Parking",
+  "valet parking": "Valet Parking",
+  // Security variations
+  "24/7 security": "Security",
+  "24 hour security": "Security",
+  // Concierge variations
+  "concierge service": "Concierge",
+  // Spa variations
+  "spa facilities": "Spa",
+  "wellness centre": "Wellness Center",
+  "wellness center": "Wellness Center",
+  // BBQ variations
+  "bbq area": "BBQ Area",
+  "barbecue area": "BBQ Area",
+  // Retail variations
+  "retail shops": "Retail",
+  "retail outlets": "Retail",
+  // Elevator variations
+  "elevator": "Elevator",
+  "lift": "Elevator",
+  // Beach variations
+  "private beach": "Beach Access",
+  "beach access": "Beach Access",
+  // Garden variations
+  "garden": "Garden",
+  "gardens": "Garden",
+  "landscaped gardens": "Garden",
+  // Tennis variations
+  "tennis courts": "Tennis Court",
+  "tennis court": "Tennis Court",
+  // Cinema variations
+  "cinema": "Cinema",
+  "movie theatre": "Cinema",
+  "outdoor cinema": "Cinema",
+  // Lounge variations
+  "residents lounge": "Residents' Lounge",
+  "residents' lounge": "Residents' Lounge",
+  // Workspace variations
+  "co-working space": "Co-working Space",
+  "coworking space": "Co-working Space",
+  // Restaurant variations
+  "restaurants": "Restaurants",
+  "dining": "Restaurants",
+};
+
+function normalizeAmenity(name: string): string {
+  if (!name) return "";
+  const key = name.toLowerCase().trim().replace(/\s+/g, " ");
+  return AMENITY_SYNONYMS[key] || name.trim();
+}
+
+// Normalize an array of amenities: deduplicate synonyms, return canonical forms
+function normalizeAmenities(amenities: string[]): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const a of amenities) {
+    const canonical = normalizeAmenity(a);
+    if (canonical && !seen.has(canonical.toLowerCase())) {
+      seen.add(canonical.toLowerCase());
+      result.push(canonical);
+    }
+  }
+  return result.sort();
+}
+
+// Check if property has an amenity (normalized comparison)
+function propertyHasAmenity(propertyAmenities: string[], targetAmenity: string): boolean {
+  const canonicalTarget = normalizeAmenity(targetAmenity).toLowerCase();
+  return propertyAmenities.some(a => normalizeAmenity(a).toLowerCase() === canonicalTarget);
+}
+
 export default function ComparePage() {
   const { properties, removeProperty, clearAll } = useCompare();
 
@@ -34,7 +125,8 @@ export default function ComparePage() {
     return currentPrice > bestPrice ? p : best;
   }, properties[0]);
 
-  const allAmenities = [...new Set(properties.flatMap((p) => p.amenities || []))];
+  // FIX: Normalize all amenities to canonical forms, deduplicate synonyms
+  const allAmenities = normalizeAmenities(properties.flatMap((p) => p.amenities || []));
 
   const comparisonRows = [
     { label: "Price", render: (p: any) => p.price ? `AED ${(p.price / 1000000).toFixed(2)}M` : "On Request" },
@@ -166,7 +258,7 @@ export default function ComparePage() {
                   <div className="p-3 sm:p-4 bg-gray-50 text-sm font-medium text-gray-500">Amenities</div>
                   {properties.map((p) => (
                     <div key={p.id} className="p-3 sm:p-4 text-center">
-                      <span className="text-xs text-gray-400">{p.amenities?.length || 0} features</span>
+                      <span className="text-xs text-gray-400">{normalizeAmenities(p.amenities || []).length} features</span>
                     </div>
                   ))}
                 </div>
@@ -176,7 +268,8 @@ export default function ComparePage() {
                       <BadgeCheck className="w-3.5 h-3.5" /> {amenity}
                     </div>
                     {properties.map((p) => {
-                      const hasIt = p.amenities?.includes(amenity);
+                      // FIX: Use normalized comparison
+                      const hasIt = propertyHasAmenity(p.amenities || [], amenity);
                       return (
                         <div key={p.id} className="p-3 sm:p-4 flex items-center justify-center">
                           {hasIt ? (
