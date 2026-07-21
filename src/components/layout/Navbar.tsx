@@ -12,7 +12,7 @@ const navLinks = [
   { href: "/communities", label: "Communities", icon: MapPin },
   { href: "/developers", label: "Developers", icon: Users },
   { href: "/golden-visa", label: "Golden Visa", icon: Landmark },
-  { href: "/property-management", label: "Property Management", icon: Briefcase },
+  { href: "/property-management", label: "Property Mgmt", icon: Briefcase },
   { href: "/about", label: "About", icon: Info },
   { href: "/blog", label: "Blog", icon: FileText },
 ];
@@ -41,8 +41,6 @@ export function Navbar() {
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
-  // FIX: Before mount, always transparent on homepage. After mount, use scroll logic.
-  // This prevents the white flash on initial load.
   const isDark = !mounted ? false : (!isHomePage || scrolled);
 
   return (
@@ -58,7 +56,6 @@ export function Navbar() {
       >
         <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-20">
           <div className="flex items-center justify-between h-[72px]">
-            {/* Logo */}
             <Link href="/" className="flex items-center gap-3" onClick={() => setOpen(false)}>
               <div className="relative w-28 h-10">
                 <Image
@@ -71,7 +68,6 @@ export function Navbar() {
               </div>
             </Link>
 
-            {/* Desktop Nav */}
             <nav className="hidden lg:flex items-center gap-1">
               {navLinks.filter(l => l.href !== "/").map((link) => (
                 <Link
@@ -88,7 +84,6 @@ export function Navbar() {
               ))}
             </nav>
 
-            {/* CTA + Hamburger */}
             <div className="flex items-center gap-3">
               <a
                 href="tel:+971563867270"
@@ -114,15 +109,12 @@ export function Navbar() {
         </div>
       </header>
 
-      {/* Full-Screen Mobile Menu */}
+      {/* Mobile Menu — 2x2 Square Grid */}
       {open && (
         <div className="lg:hidden fixed inset-0 z-[55] bg-navy-900/98 backdrop-blur-2xl">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-gold/5 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-72 h-72 bg-white/3 rounded-full blur-3xl" />
-
           <div className="relative z-10 flex flex-col h-full pt-20 pb-8 px-6">
             {/* Top: Logo + Close */}
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center justify-between mb-6">
               <Link href="/" onClick={() => setOpen(false)} className="relative w-32 h-12">
                 <Image src="/images/logo-white.png" alt="3G Real Estate" fill className="object-contain object-left" />
               </Link>
@@ -135,21 +127,21 @@ export function Navbar() {
               </button>
             </div>
 
-            {/* Nav Grid */}
-            <nav className="grid grid-cols-1 gap-3 flex-1 content-start">
+            {/* Nav Grid — 2 Column Square Boxes */}
+            <nav className="grid grid-cols-2 gap-3 flex-1 content-start">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className={`flex items-center gap-4 px-6 py-4 rounded-xl border-2 transition-all active:scale-95 w-full ${
+                  className={`flex flex-col items-center justify-center gap-2 py-5 rounded-xl border-2 transition-all active:scale-95 aspect-square ${
                     pathname === link.href
                       ? "bg-navy-800 border-gold text-white"
-                      : "bg-white/10 backdrop-blur-lg border-white/20 text-navy-300 hover:bg-white/20 hover:border-gold/50"
+                      : "bg-white/10 backdrop-blur-lg border-white/20 text-white/70 hover:bg-white/20 hover:border-gold/50"
                   }`}
                 >
-                  <link.icon className={`w-6 h-6 flex-shrink-0 ${pathname === link.href ? "text-gold" : "text-navy-300"}`} />
-                  <span className="text-base font-semibold">{link.label}</span>
+                  <link.icon className={`w-7 h-7 ${pathname === link.href ? "text-gold" : "text-white/50"}`} />
+                  <span className="text-xs font-semibold text-center leading-tight px-1">{link.label}</span>
                 </Link>
               ))}
             </nav>
