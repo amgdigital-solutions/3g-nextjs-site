@@ -11,6 +11,7 @@ import { PaymentPlan } from "@/components/property/PaymentPlan";
 import { SimilarProperties } from "@/components/property/SimilarProperties";
 import { ScheduleViewingButton } from "@/components/property/ScheduleViewing";
 import { ShareProperty } from "@/components/property/ShareProperty";
+import { MobileContactBar } from "@/components/property/MobileContactBar";
 import { formatPrice } from "@/lib/utils";
 import {
   MapPin, Bed, Bath, Square, Phone, Mail, MessageCircle,
@@ -78,7 +79,7 @@ export default async function PropertyDetailPage({ params }: Props) {
   );
 
   return (
-    <div className="min-h-screen bg-white pt-[72px]">
+    <div className="min-h-screen bg-white pt-[72px] pb-28 lg:pb-0">
       <PropertyJsonLd property={property} />
       {faqs.length > 0 && <FaqJsonLd faqs={faqs} />}
       <BreadcrumbJsonLd items={[
@@ -343,6 +344,9 @@ export default async function PropertyDetailPage({ params }: Props) {
       <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-20 pb-20">
         <SimilarProperties currentProperty={property} allProperties={allProperties} />
       </div>
+
+      {/* Mobile floating contact bar — only shows on mobile */}
+      <MobileContactBar />
 
       <ScheduleViewingButton />
     </div>
