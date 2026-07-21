@@ -4,10 +4,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  ChevronLeft, ChevronRight, Search, MapPin,
-  ChevronDown, SlidersHorizontal
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, MapPin, ChevronDown, SlidersHorizontal } from "lucide-react";
 import type { Property, Community } from "@/types";
 
 interface HeroCarouselProps {
@@ -16,11 +13,11 @@ interface HeroCarouselProps {
 }
 
 const PRICE_RANGES = [
-  { label: "Any Price", min: "", max: "" },
-  { label: "Up to 1M", min: "0", max: "1000000" },
-  { label: "1M - 2M", min: "1000000", max: "2000000" },
-  { label: "2M - 5M", min: "2000000", max: "5000000" },
-  { label: "5M+", min: "5000000", max: "" },
+  { label: "Any Price", value: "", min: "", max: "" },
+  { label: "Up to 1M", value: "upto-1m", min: "0", max: "1000000" },
+  { label: "1M - 2M", value: "1m-2m", min: "1000000", max: "2000000" },
+  { label: "2M - 5M", value: "2m-5m", min: "2000000", max: "5000000" },
+  { label: "5M+", value: "5m+", min: "5000000", max: "" },
 ];
 
 const BEDROOMS = [
@@ -35,7 +32,6 @@ const BEDROOMS = [
 export function HeroCarousel({ properties, communities = [] }: HeroCarouselProps) {
   const [current, setCurrent] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
   const slides = properties.length > 0 ? properties : [];
   const currentProperty = slides[current];
 
@@ -44,10 +40,6 @@ export function HeroCarousel({ properties, communities = [] }: HeroCarouselProps
     properties.forEach(p => { if (p.developer_name) devSet.add(p.developer_name); });
     return Array.from(devSet).sort();
   }, [properties]);
-
-  const communityNames = communities.length > 0
-    ? communities.map(c => c.name).filter((n): n is string => Boolean(n))
-    : [];
 
   const startAutoPlay = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
@@ -77,7 +69,7 @@ export function HeroCarousel({ properties, communities = [] }: HeroCarouselProps
             <p className="text-white/70 text-lg mb-8">Discover premium off-plan properties with high ROI potential.</p>
           </div>
         </div>
-        <SearchBar developers={developers} communityNames={communityNames} />
+        <SearchBar developers={developers} />
       </section>
     );
   }
@@ -114,68 +106,68 @@ export function HeroCarousel({ properties, communities = [] }: HeroCarouselProps
               <a href="tel:+971563867270" className="inline-flex items-center gap-2 px-4 sm:px-8 py-2.5 sm:py-3.5 border border-white/30 text-white font-semibold rounded-lg hover:bg-white/10 transition-colors text-xs sm:text-base">Book Consultation</a>
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
-              {slides.length > 1 && (
-                <button onClick={prev} className="w-8 h-8 sm:w-10 sm:h-10 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-colors flex-shrink-0" aria-label="Previous slide"><ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" /></button>
-              )}
+              {slides.length > 1 && <button onClick={prev} className="w-8 h-8 sm:w-10 sm:h-10 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-colors flex-shrink-0" aria-label="Previous slide"><ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" /></button>}
               <div className="flex items-center gap-1.5 sm:gap-2">
-                {slides.map((_, i) => (
-                  <button key={i} onClick={() => goTo(i)} className={`h-1.5 sm:h-2 rounded-full transition-all duration-300 ${i === current ? "w-6 sm:w-8 bg-gold" : "w-1.5 sm:w-2 bg-white/40 hover:bg-white/60"}`} aria-label={`Go to slide ${i + 1}`} />
-                ))}
+                {slides.map((_, i) => <button key={i} onClick={() => goTo(i)} className={`h-1.5 sm:h-2 rounded-full transition-all duration-300 ${i === current ? "w-6 sm:w-8 bg-gold" : "w-1.5 sm:w-2 bg-white/40 hover:bg-white/60"}`} aria-label={`Go to slide ${i + 1}`} />)}
               </div>
-              {slides.length > 1 && (
-                <button onClick={next} className="w-8 h-8 sm:w-10 sm:h-10 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-colors flex-shrink-0" aria-label="Next slide"><ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" /></button>
-              )}
+              {slides.length > 1 && <button onClick={next} className="w-8 h-8 sm:w-10 sm:h-10 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-colors flex-shrink-0" aria-label="Next slide"><ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" /></button>}
             </div>
           </div>
         </div>
       </div>
-      <SearchBar developers={developers} communityNames={communityNames} />
+      <SearchBar developers={developers} />
     </section>
   );
 }
 
-function SearchBar({ developers, communityNames }: { developers: string[]; communityNames: string[]; }) {
+function SearchBar({ developers }: { developers: string[]; }) {
   const router = useRouter();
   const [location, setLocation] = useState("");
-  const [selectedDeveloper, setSelectedDeveloper] = useState("");
-  const [selectedPrice, setSelectedPrice] = useState("");
-  const [selectedBeds, setSelectedBeds] = useState("");
+  const [selectedDev, setSelectedDev] = useState("");
+  const [selectedPriceLabel, setSelectedPriceLabel] = useState("");
+  const [selectedBedsLabel, setSelectedBedsLabel] = useState("");
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   const doSearch = () => {
     const params = new URLSearchParams();
     if (location) params.set("keyword", location);
-    if (selectedDeveloper) params.set("developer", selectedDeveloper);
-    if (selectedPrice) {
-      const priceRange = PRICE_RANGES.find(p => p.label === selectedPrice);
-      if (priceRange) { if (priceRange.min) params.set("min_price", priceRange.min); if (priceRange.max) params.set("max_price", priceRange.max); }
+    if (selectedDev) params.set("developer", selectedDev);
+
+    // FIX: Send price min/max from label lookup
+    if (selectedPriceLabel) {
+      const range = PRICE_RANGES.find(p => p.label === selectedPriceLabel);
+      if (range) { if (range.min) params.set("min_price", range.min); if (range.max) params.set("max_price", range.max); }
     }
-    if (selectedBeds) params.set("beds", selectedBeds);
+
+    // FIX: Send bed VALUE (not label) — lookup from label
+    if (selectedBedsLabel) {
+      const bed = BEDROOMS.find(b => b.label === selectedBedsLabel);
+      if (bed && bed.value) params.set("beds", bed.value);
+    }
+
     router.push(params.toString() ? `/properties?${params.toString()}` : "/properties");
   };
 
-  const goToProperties = () => router.push("/properties");
   const toggleDropdown = (name: string) => setOpenDropdown(openDropdown === name ? null : name);
   const closeDropdown = () => setOpenDropdown(null);
 
-  const FilterDropdown = ({ label, value, options, onSelect, name, hasOptions }: { label: string; value: string; options: string[]; onSelect: (val: string) => void; name: string; hasOptions: boolean; }) => {
-    if (!hasOptions) return null;
+  const FilterDropdown = ({ label, displayValue, options, onSelect, name }: { label: string; displayValue: string; options: string[]; onSelect: (val: string) => void; name: string; }) => {
     const isOpen = openDropdown === name;
     return (
       <div className="relative flex-shrink-0">
         <button onClick={() => toggleDropdown(name)} className="flex items-center gap-1.5 px-3 py-2 text-white/70 hover:text-white transition-colors text-sm whitespace-nowrap">
           <span className="text-[10px] text-white/40 uppercase tracking-wider block leading-tight">{label}</span>
-          <span className="text-white text-sm font-medium">{value || "All"}</span>
+          <span className="text-white text-sm font-medium">{displayValue || "All"}</span>
           <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? "rotate-180" : ""}`} />
         </button>
         {isOpen && (
           <>
             <div className="fixed inset-0 z-40" onClick={closeDropdown} />
-            {/* FIX: Dropdown opens UPWARD (bottom-full) with scroll for long lists */}
-            <div className="absolute bottom-full left-0 mb-1 bg-navy-800 border border-white/10 rounded-lg overflow-hidden shadow-2xl z-50 min-w-[200px] max-h-[300px] overflow-y-auto py-1">
-              <button onClick={() => { onSelect(""); closeDropdown(); }} className={`w-full px-4 py-2.5 text-left text-sm hover:bg-white/10 transition-colors ${!value ? "text-gold" : "text-white"}`}>{name === "developer" ? "All Developers" : "Any"}</button>
+            {/* Glass effect dropdown with dark text, opens UPWARD */}
+            <div className="absolute bottom-full left-0 mb-1 bg-white/95 backdrop-blur-xl border border-white/30 rounded-xl overflow-hidden shadow-2xl z-50 min-w-[220px] max-h-[350px] overflow-y-auto py-2">
+              <button onClick={() => { onSelect(""); closeDropdown(); }} className={`w-full px-5 py-3 text-left text-sm hover:bg-gray-50 transition-colors ${!displayValue ? "text-navy-900 font-semibold" : "text-gray-600"}`}>{name === "developer" ? "All Developers" : "Any"}</button>
               {options.map((opt) => (
-                <button key={opt} onClick={() => { onSelect(opt); closeDropdown(); }} className={`w-full px-4 py-2.5 text-left text-sm hover:bg-white/10 transition-colors ${value === opt ? "text-gold" : "text-white"}`}>{opt}</button>
+                <button key={opt} onClick={() => { onSelect(opt); closeDropdown(); }} className={`w-full px-5 py-3 text-left text-sm hover:bg-gray-50 transition-colors ${displayValue === opt ? "text-navy-900 font-semibold" : "text-gray-600"}`}>{opt}</button>
               ))}
             </div>
           </>
@@ -197,11 +189,11 @@ function SearchBar({ developers, communityNames }: { developers: string[]; commu
             <MapPin className="w-4 h-4 text-white/40 flex-shrink-0" />
             <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Enter location..." className="flex-1 bg-transparent text-white placeholder-white/40 outline-none text-sm min-w-0" onKeyDown={(e) => { if (e.key === "Enter") doSearch(); }} />
           </div>
-          {developers.length > 0 && <FilterDropdown label="Developer" value={selectedDeveloper} options={developers} onSelect={setSelectedDeveloper} name="developer" hasOptions={true} />}
-          <FilterDropdown label="Price Range" value={selectedPrice} options={PRICE_RANGES.map(p => p.label)} onSelect={setSelectedPrice} name="price" hasOptions={true} />
-          <FilterDropdown label="Beds" value={selectedBeds} options={BEDROOMS.map(b => b.label)} onSelect={setSelectedBeds} name="beds" hasOptions={true} />
+          {developers.length > 0 && <FilterDropdown label="Developer" displayValue={selectedDev} options={developers} onSelect={setSelectedDev} name="developer" />}
+          <FilterDropdown label="Price Range" displayValue={selectedPriceLabel} options={PRICE_RANGES.map(p => p.label)} onSelect={setSelectedPriceLabel} name="price" />
+          <FilterDropdown label="Beds" displayValue={selectedBedsLabel} options={BEDROOMS.map(b => b.label)} onSelect={setSelectedBedsLabel} name="beds" />
           <button onClick={doSearch} className="flex items-center justify-center gap-2 px-5 py-3 bg-gold text-navy-900 font-semibold hover:bg-amber-500 transition-colors text-sm flex-shrink-0"><Search className="w-4 h-4" />Search</button>
-          <button onClick={goToProperties} className="flex items-center justify-center gap-1.5 px-3 py-3 text-white/50 hover:text-white transition-colors text-xs flex-shrink-0"><SlidersHorizontal className="w-3.5 h-3.5" /><span>More</span></button>
+          <button onClick={() => router.push("/properties")} className="flex items-center justify-center gap-1.5 px-3 py-3 text-white/50 hover:text-white transition-colors text-xs flex-shrink-0"><SlidersHorizontal className="w-3.5 h-3.5" /><span>More</span></button>
         </div>
         <p className="text-white/30 text-xs mt-2 text-center hidden lg:block">Downtown Dubai, Dubai Marina, Palm Jumeirah...</p>
       </div>
