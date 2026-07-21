@@ -158,10 +158,10 @@ function SearchBar({ developers }: { developers: string[]; }) {
         {isOpen && (
           <>
             <div className="fixed inset-0 z-40" onClick={closeDropdown} />
-            {/* GLASS: transparent navy with blur - explicit styles for scroll */}
+            {/* DROPDOWN: scrollable with increased height and visible scrollbar */}
             <div
-              className="absolute bottom-full left-0 mb-2 bg-navy-900/70 backdrop-blur-2xl border border-white/20 rounded-xl shadow-2xl z-50 min-w-[240px] py-2"
-              style={{ maxHeight: "300px", overflowY: "auto" }}
+              className="absolute bottom-full left-0 mb-2 bg-navy-900/90 backdrop-blur-2xl border border-white/20 rounded-xl shadow-2xl z-50 min-w-[260px] py-2 scrollbar-dropdown"
+              style={{ maxHeight: "360px", overflowY: "auto", scrollbarWidth: "thin" }}
             >
               <button onClick={() => { onSelect(""); closeDropdown(); }} className={`w-full px-5 py-3 text-left text-sm transition-colors ${!displayValue ? "text-gold font-semibold" : "text-white/80 hover:text-white"}`}>{name === "developer" ? "All Developers" : "Any"}</button>
               {options.map((opt) => (
