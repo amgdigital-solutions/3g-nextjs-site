@@ -158,8 +158,11 @@ function SearchBar({ developers }: { developers: string[]; }) {
         {isOpen && (
           <>
             <div className="fixed inset-0 z-40" onClick={closeDropdown} />
-            {/* REAL GLASS: semi-transparent navy with backdrop blur */}
-            <div className="absolute bottom-full left-0 mb-2 bg-navy-900/70 backdrop-blur-2xl border border-white/20 rounded-xl shadow-2xl z-50 min-w-[240px] max-h-[320px] overflow-y-auto py-2">
+            {/* GLASS: transparent navy with blur - explicit styles for scroll */}
+            <div
+              className="absolute bottom-full left-0 mb-2 bg-navy-900/70 backdrop-blur-2xl border border-white/20 rounded-xl shadow-2xl z-50 min-w-[240px] py-2"
+              style={{ maxHeight: "300px", overflowY: "auto" }}
+            >
               <button onClick={() => { onSelect(""); closeDropdown(); }} className={`w-full px-5 py-3 text-left text-sm transition-colors ${!displayValue ? "text-gold font-semibold" : "text-white/80 hover:text-white"}`}>{name === "developer" ? "All Developers" : "Any"}</button>
               {options.map((opt) => (
                 <button key={opt} onClick={() => { onSelect(opt); closeDropdown(); }} className={`w-full px-5 py-3 text-left text-sm transition-colors ${displayValue === opt ? "text-gold font-semibold" : "text-white/80 hover:text-white"}`}>{opt}</button>
@@ -185,8 +188,7 @@ function SearchBar({ developers }: { developers: string[]; }) {
             <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Enter location..." className="flex-1 bg-transparent text-white placeholder-white/40 outline-none text-sm min-w-0" onKeyDown={(e) => { if (e.key === "Enter") doSearch(); }} />
           </div>
           {developers.length > 0 && <FilterDropdown label="Developer" displayValue={selectedDev} options={developers} onSelect={setSelectedDev} name="developer" />}
-          <FilterDropdown label="Price Range" displayValue={selectedPriceLabel} options={PRICE_RANGES.map(p => p.label)} onSelect={setSelectedPriceLabel} name="price" />
-          <FilterDropdown label="Beds" displayValue={selectedBedsLabel} options={BEDROOMS.map(b => b.label)} onSelect={setSelectedBedsLabel} name="beds" />
+          <FilterDropdown label="Price Range" displayValue={selectedPriceLabel} options={PRICE_RANGES.map(p => p.label)} onSelect={setSelectedPriceLabel} name="price" />          <FilterDropdown label="Beds" displayValue={selectedBedsLabel} options={BEDROOMS.map(b => b.label)} onSelect={setSelectedBedsLabel} name="beds" />
           <button onClick={doSearch} className="flex items-center justify-center gap-2 px-5 py-3 bg-gold text-navy-900 font-semibold hover:bg-amber-500 transition-colors text-sm flex-shrink-0"><Search className="w-4 h-4" />Search</button>
           <button onClick={() => router.push("/properties")} className="flex items-center justify-center gap-1.5 px-3 py-3 text-white/50 hover:text-white transition-colors text-xs flex-shrink-0"><SlidersHorizontal className="w-3.5 h-3.5" /><span>More</span></button>
         </div>
