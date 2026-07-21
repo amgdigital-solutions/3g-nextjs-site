@@ -10,6 +10,7 @@ import type { Property, Community } from "@/types";
 interface HeroCarouselProps {
   properties: Property[];
   communities?: Community[];
+  allProperties?: Property[];
 }
 
 const PRICE_RANGES = [
@@ -29,17 +30,20 @@ const BEDROOMS = [
   { label: "4+", value: "4" },
 ];
 
-export function HeroCarousel({ properties, communities = [] }: HeroCarouselProps) {
+export function HeroCarousel({ properties, communities = [], allProperties = [] }: HeroCarouselProps) {
   const [current, setCurrent] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const slides = properties.length > 0 ? properties : [];
   const currentProperty = slides[current];
 
+  // FIX: Use allProperties for developer list, not just featured
+  const propertiesForDevList = allProperties.length > 0 ? allProperties : properties;
+
   const developers = useMemo(() => {
     const devSet = new Set<string>();
-    properties.forEach(p => { if (p.developer_name) devSet.add(p.developer_name); });
+    propertiesForDevList.forEach(p => { if (p.developer_name) devSet.add(p.developer_name); });
     return Array.from(devSet).sort();
-  }, [properties]);
+  }, [propertiesForDevList]);
 
   const startAutoPlay = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
