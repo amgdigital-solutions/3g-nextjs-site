@@ -1,6 +1,14 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+
 export function WhatsAppFloat() {
+  const pathname = usePathname();
+  const isPropertyPage = pathname?.startsWith("/property/");
+
+  // Hide on property detail page — mobile contact bar already has WhatsApp
+  if (isPropertyPage) return null;
+
   return (
     <a
       href="https://wa.me/971563867270"
