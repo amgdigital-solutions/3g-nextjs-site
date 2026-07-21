@@ -9,10 +9,10 @@ export interface Property {
   location: string | null;
   property_type: string | null;
   status: string | null;
-  bedrooms: number | null;
-  bathrooms: number | null;
-  area_sqft: number | null;
-  parking: number | null;
+  bedrooms: string | number | null;  // can be "1-5" range or 3
+  bathrooms: string | number | null;  // can be range
+  area_sqft: string | number | null;  // can be range
+  parking: string | number | null;    // can be range
   featured: boolean;
   images: string[] | null;
   amenities: string[] | null;
@@ -21,7 +21,6 @@ export interface Property {
   focus_keywords: string | null;
   faqs: { q: string; a: string }[] | null;
   barcode: string | null;
-  // Investment & project info
   expected_roi: string | null;
   rental_yield: string | null;
   payment_plan: string | null;
@@ -62,7 +61,7 @@ export interface Community {
   slug: string;
   description: string | null;
   short_description: string | null;
-  image: string | null;
+  image: string[] | null;
   gallery: string[] | null;
   location: string | null;
   avg_price: string | null;
