@@ -12,20 +12,31 @@ import { MortgageCalculator } from "@/components/home/MortgageCalculator";
 import { Developers } from "@/components/home/Developers";
 import { Testimonials } from "@/components/home/Testimonials";
 import { CTASection } from "@/components/home/CTASection";
-import { getFeaturedProperties, getExclusiveProperties, getAllCommunities } from "@/lib/supabase/server";
+import {
+  getFeaturedProperties,
+  getExclusiveProperties,
+  getAllCommunities,
+  getAllProperties,
+} from "@/lib/supabase/server";
 
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const [featured, exclusive, communities] = await Promise.all([
+  const [featured, exclusive, communities, allProperties] = await Promise.all([
     getFeaturedProperties(),
     getExclusiveProperties(),
     getAllCommunities(),
+    getAllProperties(),
   ]);
 
   return (
     <>
-      <HeroCarousel properties={featured} communities={communities} />
+      {/* Pass all properties for developer dropdown, featured for carousel slides */}
+      <HeroCarousel
+        properties={featured}
+        communities={communities}
+        allProperties={allProperties}
+      />
       <About3G />
       <FeaturedProperties />
       <WhyInvest />
