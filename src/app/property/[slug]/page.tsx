@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { getPropertyBySlug, getAllCommunities, getAllProperties } from "@/lib/supabase/server";
 import { PropertyJsonLd, FaqJsonLd, BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import { PropertyActions } from "@/components/property/PropertyActions";
@@ -44,6 +45,27 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export const revalidate = 300;
 
+// Helper: format bedroom display from new min/max columns
+function formatBedrooms(bedsMin: number | null, bedsMax: number | null, legacyText: string): string {
+  // If both min and max are 0, it's a Studio
+  if (bedsMin === 0 && bedsMax === 0) return "Studio";
+  // If min and max are same single number
+  if (bedsMin !== null && bedsMax !== null && bedsMin === bedsMax) return `${bedsMin}`;
+  // If we have a range
+  if (bedsMin !== null && bedsMax !== null) return `${bedsMin}-${bedsMax}`;
+  // Legacy fallback
+  if (legacyText && legacyText !== "-" && legacyText.trim() !== "") return legacyText;
+  return "N/A";
+}
+
+// Helper: format bathroom display from new min/max columns
+function formatBathrooms(bathsMin: number | null, bathsMax: number | null, legacyText: string): string {
+  if (bathsMin !== null && bathsMax !== null && bathsMin === bathsMax) return `${bathsMin}`;
+  if (bathsMin !== null && bathsMax !== null) return `${bathsMin}-${bathsMax}`;
+  if (legacyText && legacyText !== "-" && legacyText.trim() !== "") return legacyText;
+  return "N/A";
+}
+
 export default async function PropertyDetailPage({ params }: Props) {
   const { slug } = await params;
   const [property, communities, allProperties] = await Promise.all([
@@ -77,6 +99,10 @@ export default async function PropertyDetailPage({ params }: Props) {
     ? `Q${Math.floor(new Date(property.created_at).getMonth() / 3) + 1} ${new Date(property.created_at).getFullYear() + 2}`
     : "Q4 2026"
   );
+
+  // Use new min/max columns for display
+  const bedDisplay = formatBedrooms(property.beds_min, property.beds_max, property.bedrooms || "");
+  const bathDisplay = formatBathrooms(property.baths_min, property.baths_max, property.bathrooms || "");
 
   return (
     <div className="min-h-screen bg-white pt-[72px] pb-28 lg:pb-0">
@@ -132,8 +158,8 @@ export default async function PropertyDetailPage({ params }: Props) {
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8 border-t border-b border-gray-100 py-5">
               {[
-                { icon: Bed, label: "Bedrooms", value: property.bedrooms ? `${property.bedrooms}` : "Studio", sub: property.bedrooms ? `${property.bedrooms}` : "Studio" },
-                { icon: Bath, label: "Bathrooms", value: property.bathrooms ? `1-${property.bathrooms}` : "1-2", sub: "Bathrooms" },
+                { icon: Bed, label: "Bedrooms", value: bedDisplay, sub: bedDisplay === "Studio" ? "Studio" : "Bedrooms" },
+                { icon: Bath, label: "Bathrooms", value: bathDisplay, sub: "Bathrooms" },
                 { icon: Square, label: "Area", value: property.area_sqft ? `${property.area_sqft}+` : "400+", sub: "Sqft" },
                 { icon: Calendar, label: "Handover", value: handoverDate, sub: "Handover" },
               ].map((s) => (
@@ -272,42 +298,23 @@ export default async function PropertyDetailPage({ params }: Props) {
               </h3>
               {property.barcode ? (
                 <div className="border border-gray-100 rounded-xl p-4 flex flex-col items-center justify-center bg-gray-50/50">
-                  <div className="w-40 h-40 bg-white border border-gray-200 rounded-lg flex items-center justify-center mb-3">
-                    <svg viewBox="0 0 100 100" className="w-36 h-36 text-gray-300">
-                      <rect x="8" y="8" width="28" height="28" rx="2" fill="none" stroke="currentColor" strokeWidth="3" />
-                      <rect x="12" y="12" width="20" height="20" rx="1" fill="currentColor" />
-                      <rect x="64" y="8" width="28" height="28" rx="2" fill="none" stroke="currentColor" strokeWidth="3" />
-                      <rect x="68" y="12" width="20" height="20" rx="1" fill="currentColor" />
-                      <rect x="8" y="64" width="28" height="28" rx="2" fill="none" stroke="currentColor" strokeWidth="3" />
-                      <rect x="12" y="68" width="20" height="20" rx="1" fill="currentColor" />
-                      <rect x="44" y="44" width="12" height="12" rx="1" fill="none" stroke="currentColor" strokeWidth="3" />
-                      <rect x="47" y="47" width="6" height="6" rx="1" fill="currentColor" opacity="0.5" />
-                      <rect x="40" y="8" width="4" height="4" fill="currentColor" opacity="0.6" />
-                      <rect x="48" y="8" width="4" height="4" fill="currentColor" opacity="0.4" />
-                      <rect x="40" y="16" width="4" height="4" fill="currentColor" opacity="0.5" />
-                      <rect x="56" y="12" width="4" height="4" fill="currentColor" opacity="0.6" />
-                      <rect x="64" y="44" width="4" height="4" fill="currentColor" opacity="0.5" />
-                      <rect x="72" y="48" width="4" height="4" fill="currentColor" opacity="0.4" />
-                      <rect x="80" y="44" width="4" height="4" fill="currentColor" opacity="0.6" />
-                      <rect x="64" y="56" width="4" height="4" fill="currentColor" opacity="0.5" />
-                      <rect x="72" y="64" width="4" height="4" fill="currentColor" opacity="0.4" />
-                      <rect x="80" y="60" width="4" height="4" fill="currentColor" opacity="0.6" />
-                      <rect x="88" y="64" width="4" height="4" fill="currentColor" opacity="0.5" />
-                      <rect x="40" y="64" width="4" height="4" fill="currentColor" opacity="0.4" />
-                      <rect x="48" y="72" width="4" height="4" fill="currentColor" opacity="0.6" />
-                      <rect x="56" y="68" width="4" height="4" fill="currentColor" opacity="0.5" />
-                      <rect x="44" y="80" width="4" height="4" fill="currentColor" opacity="0.4" />
-                      <rect x="56" y="88" width="4" height="4" fill="currentColor" opacity="0.6" />
-                      <rect x="8" y="44" width="4" height="4" fill="currentColor" opacity="0.5" />
-                      <rect x="16" y="48" width="4" height="4" fill="currentColor" opacity="0.4" />
-                      <rect x="24" y="44" width="4" height="4" fill="currentColor" opacity="0.6" />
-                      <rect x="16" y="56" width="4" height="4" fill="currentColor" opacity="0.5" />
-                      <rect x="28" y="60" width="4" height="4" fill="currentColor" opacity="0.4" />
-                      <rect x="8" y="60" width="4" height="4" fill="currentColor" opacity="0.6" />
-                    </svg>
-                  </div>
-                  <p className="text-[10px] text-gray-400 text-center">QR Code will appear here once uploaded from admin panel</p>
-                  <p className="text-[9px] text-gray-300 mt-0.5 font-mono">{property.barcode}</p>
+                  {/* FIX: Show actual QR code image if it's a URL, otherwise show placeholder */}
+                  {property.barcode.startsWith("http") ? (
+                    <div className="relative w-40 h-40 mb-3">
+                      <Image
+                        src={property.barcode}
+                        alt="RERA QR Code"
+                        fill
+                        className="object-contain"
+                        sizes="160px"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-40 h-40 bg-white border border-gray-200 rounded-lg flex items-center justify-center mb-3">
+                      <span className="text-xs text-gray-400 text-center px-2">{property.barcode}</span>
+                    </div>
+                  )}
+                  <p className="text-[10px] text-gray-400 text-center">RERA Registration</p>
                 </div>
               ) : (
                 <div className="border border-dashed border-gray-200 rounded-xl p-6 flex flex-col items-center justify-center">
@@ -356,7 +363,7 @@ export default async function PropertyDetailPage({ params }: Props) {
 function MortgageCalculatorSidebar({ price }: { price: number }) {
   const propertyPrice = price || 890000;
   const downPaymentPercent = 25;
-  const interestRate = 6.5;
+  const interestRate = 3.7; // UPDATED: Current UAE mortgage rate
   const loanTerm = 25;
   const downPaymentAmount = Math.round(propertyPrice * (downPaymentPercent / 100));
   const loanAmount = propertyPrice - downPaymentAmount;
@@ -378,8 +385,8 @@ function MortgageCalculatorSidebar({ price }: { price: number }) {
           <div className="w-full bg-gray-100 rounded-full h-1.5"><div className="bg-navy-800 h-1.5 rounded-full" style={{ width: `${downPaymentPercent}%` }} /></div>
         </div>
         <div>
-          <div className="flex justify-between text-xs mb-1"><span className="text-gray-400">Interest Rate</span><span className="text-navy-950">{interestRate}%</span></div>
-          <div className="w-full bg-gray-100 rounded-full h-1.5"><div className="bg-navy-800 h-1.5 rounded-full" style={{ width: `${((interestRate - 3) / 7) * 100}%` }} /></div>
+          <div className="flex justify-between text-xs mb-1"><span className="text-gray-400">Interest Rate</span><span className="text-navy-950">{interestRate}% p.a.</span></div>
+          <div className="w-full bg-gray-100 rounded-full h-1.5"><div className="bg-navy-800 h-1.5 rounded-full" style={{ width: `${(interestRate / 8) * 100}%` }} /></div>
         </div>
         <div>
           <div className="flex justify-between text-xs mb-1"><span className="text-gray-400">Loan Term</span><span className="text-navy-950">{loanTerm} years</span></div>
@@ -390,7 +397,7 @@ function MortgageCalculatorSidebar({ price }: { price: number }) {
           <div className="flex justify-between text-sm"><span className="text-gray-500">Monthly Payment</span><span className="font-semibold text-navy-950">AED {monthlyPayment.toLocaleString()}</span></div>
           <div className="flex justify-between text-sm"><span className="text-gray-500">Total Interest</span><span className="font-semibold text-navy-950">AED {totalInterest.toLocaleString()}</span></div>
         </div>
-        <p className="text-[10px] text-gray-400">* This is an estimate. Actual rates may vary.</p>
+        <p className="text-[10px] text-gray-400">* Estimate based on {interestRate}% p.a. rate. Actual rates may vary (3.4-4.2%).</p>
         <a href="https://wa.me/971563867270" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 w-full py-2.5 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 transition-colors">
           <MessageCircle className="w-3.5 h-3.5" /> Chat on WhatsApp
         </a>
