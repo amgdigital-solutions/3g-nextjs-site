@@ -45,7 +45,8 @@ export default async function HomePage() {
       <ComparePromo />
       <InvestmentCalculator />
       <InvestorGuides />
-      <AreaGuides />
+      {/* Pass real communities from database */}
+      <AreaGuides communities={communities} />
       <MortgageCalculator />
       <Developers />
       <Testimonials />
