@@ -27,9 +27,14 @@ export function GoldenVisa() {
               <h2 className="heading-md text-navy-950 mb-4">
                 Golden Visa <span className="text-gold">Program</span>
               </h2>
-              <p className="text-gray-500 leading-relaxed mb-6">
+              <p className="text-gray-500 leading-relaxed mb-4">
                 Invest AED 2 million or more in Dubai property and secure a 10-year Golden Visa 
-                residency for you and your family. No sponsor needed, no minimum stay requirement.
+                residency for you and your family. Eligible on off-plan and mortgaged properties — 
+                regardless of down payment percentage. Simply pay the government fee and apply.
+              </p>
+              <p className="text-gray-400 text-sm leading-relaxed mb-6">
+                Dubai&apos;s 2024 policy update made it easier than ever: any property worth AED 2M+ 
+                qualifies — whether fully paid, mortgaged, or off-plan. No 50% minimum payment required.
               </p>
 
               <div className="grid sm:grid-cols-2 gap-3 mb-8">
