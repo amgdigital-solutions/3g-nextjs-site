@@ -11,6 +11,16 @@ export const metadata: Metadata = {
 
 export const revalidate = 300;
 
+// Helper: get first image from image field or gallery fallback
+function getCommunityThumb(c: { image: string | string[] | null; gallery: string[] | null }): string {
+  if (c.image) {
+    if (Array.isArray(c.image)) return c.image[0] || "";
+    return c.image;
+  }
+  if (c.gallery && c.gallery.length > 0) return c.gallery[0];
+  return "";
+}
+
 export default async function CommunitiesPage() {
   const communities = await getAllCommunities();
 
@@ -42,52 +52,55 @@ export default async function CommunitiesPage() {
           </div>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {communities.map((c) => (
-              <Link
-                key={c.id}
-                href={`/community/${c.slug}`}
-                className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300"
-              >
-                <div className="relative h-48 overflow-hidden">
-                  <Image
-                    src={Array.isArray(c.image) ? c.image[0] || "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&q=80" : c.image || "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&q=80"}
-                    alt={c.name}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-navy-900/60 to-transparent" />
-                  <div className="absolute bottom-3 left-3 right-3">
-                    <h2 className="font-serif text-xl text-white">{c.name}</h2>
-                    {c.location && (
-                      <div className="flex items-center gap-1 text-white/70 text-xs mt-1">
-                        <MapPin className="w-3 h-3" />
-                        {c.location}
-                      </div>
-                    )}
+            {communities.map((c) => {
+              const thumb = getCommunityThumb(c);
+              return (
+                <Link
+                  key={c.id}
+                  href={`/community/${c.slug}`}
+                  className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300"
+                >
+                  <div className="relative h-48 overflow-hidden">
+                    <Image
+                      src={thumb || "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&q=80"}
+                      alt={c.name}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-navy-900/60 to-transparent" />
+                    <div className="absolute bottom-3 left-3 right-3">
+                      <h2 className="font-serif text-xl text-white">{c.name}</h2>
+                      {c.location && (
+                        <div className="flex items-center gap-1 text-white/70 text-xs mt-1">
+                          <MapPin className="w-3 h-3" />
+                          {c.location}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-                <div className="p-4">
-                  {c.short_description && (
-                    <p className="text-gray-500 text-sm line-clamp-2 mb-3">{c.short_description}</p>
-                  )}
-                  <div className="flex items-center justify-between text-xs">
-                    {c.avg_price && (
-                      <div className="flex items-center gap-1 text-navy-800">
-                        <TrendingUp className="w-3.5 h-3.5" />
-                        <span className="font-medium">{c.avg_price}</span>
-                      </div>
+                  <div className="p-4">
+                    {c.short_description && (
+                      <p className="text-gray-500 text-sm line-clamp-2 mb-3">{c.short_description}</p>
                     )}
-                    {c.property_types && c.property_types.length > 0 && (
-                      <div className="text-gray-400">
-                        {c.property_types.slice(0, 3).join(", ")}
-                        {c.property_types.length > 3 && "+"}
-                      </div>
-                    )}
+                    <div className="flex items-center justify-between text-xs">
+                      {c.avg_price && (
+                        <div className="flex items-center gap-1 text-navy-800">
+                          <TrendingUp className="w-3.5 h-3.5" />
+                          <span className="font-medium">{c.avg_price}</span>
+                        </div>
+                      )}
+                      {c.property_types && c.property_types.length > 0 && (
+                        <div className="text-gray-400">
+                          {c.property_types.slice(0, 3).join(", ")}
+                          {c.property_types.length > 3 && "+"}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         )}
       </div>
