@@ -47,13 +47,9 @@ export const revalidate = 300;
 
 // Helper: format bedroom display from new min/max columns
 function formatBedrooms(bedsMin: number | null, bedsMax: number | null, legacyText: string): string {
-  // If both min and max are 0, it's a Studio
   if (bedsMin === 0 && bedsMax === 0) return "Studio";
-  // If min and max are same single number
   if (bedsMin !== null && bedsMax !== null && bedsMin === bedsMax) return `${bedsMin}`;
-  // If we have a range
   if (bedsMin !== null && bedsMax !== null) return `${bedsMin}-${bedsMax}`;
-  // Legacy fallback
   if (legacyText && legacyText !== "-" && legacyText.trim() !== "") return legacyText;
   return "N/A";
 }
@@ -100,7 +96,6 @@ export default async function PropertyDetailPage({ params }: Props) {
     : "Q4 2026"
   );
 
-  // FIX: Cast bedrooms/bathrooms to string since DB type is string|number
   const bedDisplay = formatBedrooms(property.beds_min, property.beds_max, String(property.bedrooms || ""));
   const bathDisplay = formatBathrooms(property.baths_min, property.baths_max, String(property.bathrooms || ""));
 
@@ -267,9 +262,16 @@ export default async function PropertyDetailPage({ params }: Props) {
           <div className="space-y-5">
             <div className="p-6 bg-white border border-gray-100 rounded-xl shadow-sm">
               <h3 className="font-semibold text-navy-950 mb-4">Contact Expert</h3>
+              {/* FIX: Use real 3G logo instead of text circle */}
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-14 h-14 bg-navy-800 rounded-full flex items-center justify-center">
-                  <span className="text-white font-serif text-lg font-bold">3G</span>
+                <div className="w-14 h-14 bg-navy-800 rounded-full flex items-center justify-center p-1 overflow-hidden">
+                  <Image
+                    src="/images/logo-white.png"
+                    alt="3G Real Estate"
+                    width={40}
+                    height={40}
+                    className="object-contain"
+                  />
                 </div>
                 <div>
                   <div className="font-medium text-navy-950">3G Real Estate</div>
@@ -298,7 +300,6 @@ export default async function PropertyDetailPage({ params }: Props) {
               </h3>
               {property.barcode ? (
                 <div className="border border-gray-100 rounded-xl p-4 flex flex-col items-center justify-center bg-gray-50/50">
-                  {/* FIX: Show actual QR code image if it's a URL, otherwise show placeholder */}
                   {property.barcode.startsWith("http") ? (
                     <div className="relative w-40 h-40 mb-3">
                       <Image
@@ -352,7 +353,6 @@ export default async function PropertyDetailPage({ params }: Props) {
         <SimilarProperties currentProperty={property} allProperties={allProperties} />
       </div>
 
-      {/* Mobile floating contact bar — only shows on mobile */}
       <MobileContactBar />
 
       <ScheduleViewingButton />
@@ -363,7 +363,7 @@ export default async function PropertyDetailPage({ params }: Props) {
 function MortgageCalculatorSidebar({ price }: { price: number }) {
   const propertyPrice = price || 890000;
   const downPaymentPercent = 25;
-  const interestRate = 3.7; // UPDATED: Current UAE mortgage rate
+  const interestRate = 3.7;
   const loanTerm = 25;
   const downPaymentAmount = Math.round(propertyPrice * (downPaymentPercent / 100));
   const loanAmount = propertyPrice - downPaymentAmount;
