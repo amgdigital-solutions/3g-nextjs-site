@@ -100,9 +100,9 @@ export default async function PropertyDetailPage({ params }: Props) {
     : "Q4 2026"
   );
 
-  // Use new min/max columns for display
-  const bedDisplay = formatBedrooms(property.beds_min, property.beds_max, property.bedrooms || "");
-  const bathDisplay = formatBathrooms(property.baths_min, property.baths_max, property.bathrooms || "");
+  // FIX: Cast bedrooms/bathrooms to string since DB type is string|number
+  const bedDisplay = formatBedrooms(property.beds_min, property.beds_max, String(property.bedrooms || ""));
+  const bathDisplay = formatBathrooms(property.baths_min, property.baths_max, String(property.bathrooms || ""));
 
   return (
     <div className="min-h-screen bg-white pt-[72px] pb-28 lg:pb-0">
