@@ -97,7 +97,7 @@ export default function PropertyManagementPage() {
               { value: "500+", label: "Properties Managed" },
               { value: "98%", label: "Tenant Retention" },
               { value: "24/7", label: "Support" },
-              { value: "15+", label: "Years Experience" },
+              { value: "20+", label: "Years Experience" },
             ].map((s) => (
               <div key={s.label} className="text-center">
                 <div className="font-serif text-3xl text-gold mb-1">{s.value}</div>
