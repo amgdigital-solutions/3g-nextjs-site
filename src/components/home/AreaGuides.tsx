@@ -3,10 +3,14 @@ import Image from "next/image";
 import { MapPin, TrendingUp } from "lucide-react";
 import type { Community } from "@/types";
 
-function getFirstImage(image: string | string[] | null): string {
-  if (!image) return "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&q=80";
-  if (Array.isArray(image)) return image[0] || "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&q=80";
-  return image;
+// Helper: get first image from image field or gallery fallback
+function getFirstImage(image: string | string[] | null, gallery: string[] | null): string {
+  if (image) {
+    if (Array.isArray(image)) return image[0] || "";
+    return image;
+  }
+  if (gallery && gallery.length > 0) return gallery[0];
+  return "";
 }
 
 interface Props {
@@ -14,7 +18,6 @@ interface Props {
 }
 
 export function AreaGuides({ communities }: Props) {
-  // Use real communities from DB, fallback to empty array
   const displayCommunities = communities?.length > 0 ? communities.slice(0, 6) : [];
 
   return (
@@ -45,7 +48,7 @@ export function AreaGuides({ communities }: Props) {
                 >
                   <div className="relative h-44 overflow-hidden">
                     <Image
-                      src={getFirstImage(c.image)}
+                      src={getFirstImage(c.image, c.gallery) || "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&q=80"}
                       alt={c.name}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
