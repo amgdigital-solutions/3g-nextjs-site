@@ -16,7 +16,7 @@ const benefits = [
 
 const requirements = [
   "Property investment of AED 2,000,000 or more",
-  "Property must be fully paid (mortgage allowed with 50%+ equity)",
+  "Property can be off-plan, mortgaged, or fully paid — any payment % eligible",
   "Retain the property for minimum 3 years",
   "Valid passport with 6+ months validity",
   "Clean criminal record certificate",
@@ -36,10 +36,14 @@ const comparison = [
   { type: "Golden Visa", duration: "10 years", renew: "Self-sponsored", stay: "No minimum stay", sponsor: "Family + Staff" },
 ];
 
+// Properties filtered for Golden Visa (AED 2M+)
+const QUALIFYING_PROPERTIES_HREF = "/properties?min_price=2000000";
+
 export default function GoldenVisaPage() {
   const [propertyValue, setPropertyValue] = useState(2000000);
   const [equity, setEquity] = useState(100);
-  const isEligible = propertyValue >= 2000000 && equity >= 50;
+  // UPDATED: Eligibility is based on property value only — any payment % qualifies per 2024 policy
+  const isEligible = propertyValue >= 2000000;
 
   return (
     <div className="min-h-screen bg-white pt-[72px]">
@@ -58,7 +62,7 @@ export default function GoldenVisaPage() {
               </h1>
               <p className="text-white/60 text-lg leading-relaxed mb-8">
                 Invest AED 2M+ in Dubai property and secure 10-year residency for you and your family. 
-                No sponsor needed, no minimum stay requirement. Your gateway to long-term UAE living.
+                Any payment percentage qualifies — off-plan, mortgaged, or fully paid. Your gateway to long-term UAE living.
               </p>
               <div className="flex flex-wrap gap-4">
                 <a href="tel:+971563867270" className="inline-flex items-center gap-2 px-6 py-3.5 bg-gold text-navy-900 font-semibold rounded-xl hover:bg-amber-500 transition-colors">
@@ -150,12 +154,12 @@ export default function GoldenVisaPage() {
                 </div>
               </div>
 
-              {/* Equity */}
+              {/* Equity slider — kept for reference but doesn't affect eligibility */}
               <div className="mb-8">
                 <label className="text-white/70 text-sm mb-2 block">Down Payment / Equity (%)</label>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-white font-semibold">{equity}%</span>
-                  <span className="text-white/40 text-xs">{equity >= 50 ? "Qualified" : "Need 50%+ equity"}</span>
+                  <span className="text-green-400 text-xs">2024 Policy: Any % qualifies</span>
                 </div>
                 <input
                   type="range"
@@ -168,7 +172,7 @@ export default function GoldenVisaPage() {
                 />
                 <div className="flex justify-between text-xs text-white/30 mt-1">
                   <span>0%</span>
-                  <span>50% (min)</span>
+                  <span>50%</span>
                   <span>100%</span>
                 </div>
               </div>
@@ -193,11 +197,10 @@ export default function GoldenVisaPage() {
                     </div>
                     <h3 className="text-red-400 font-semibold text-lg mb-1">Not Yet Eligible</h3>
                     <p className="text-white/60 text-sm mb-4">
-                      {propertyValue < 2000000
-                        ? "You need a property worth at least AED 2,000,000."
-                        : "You need at least 50% equity in the property."}
+                      You need a property worth at least AED 2,000,000.
                     </p>
-                    <Link href="/properties" className="inline-flex items-center gap-2 px-6 py-3 border border-white/20 text-white font-semibold rounded-lg hover:bg-white/10 transition-colors">
+                    {/* FIX: Link to qualifying properties filtered by 2M+ */}
+                    <Link href={QUALIFYING_PROPERTIES_HREF} className="inline-flex items-center gap-2 px-6 py-3 border border-white/20 text-white font-semibold rounded-lg hover:bg-white/10 transition-colors">
                       Browse Qualifying Properties <ArrowRight className="w-4 h-4" />
                     </Link>
                   </>
@@ -291,7 +294,8 @@ export default function GoldenVisaPage() {
               <a href="tel:+971563867270" className="inline-flex items-center gap-2 px-8 py-4 bg-gold text-navy-900 font-semibold rounded-xl hover:bg-amber-500 transition-colors">
                 <Phone className="w-5 h-5" /> Call +971 56 386 7270
               </a>
-              <Link href="/properties" className="inline-flex items-center gap-2 px-8 py-4 border border-white/20 text-white font-semibold rounded-xl hover:bg-white/10 transition-colors">
+              {/* FIX: Link to qualifying properties filtered by 2M+ */}
+              <Link href={QUALIFYING_PROPERTIES_HREF} className="inline-flex items-center gap-2 px-8 py-4 border border-white/20 text-white font-semibold rounded-xl hover:bg-white/10 transition-colors">
                 Find Qualifying Properties
               </Link>
             </div>
