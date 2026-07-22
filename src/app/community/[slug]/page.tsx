@@ -42,6 +42,9 @@ export default async function CommunityDetailPage({ params }: Props) {
   const hasQuickFacts = community.avg_price || community.property_types?.length;
   const heroImage = getFirstImage(community.image);
 
+  // FIX: Link to properties filtered by this community name
+  const browsePropertiesHref = `/properties?keyword=${encodeURIComponent(community.name)}`;
+
   return (
     <div className="min-h-screen bg-white pt-[72px]">
       {/* Hero Image */}
@@ -149,7 +152,8 @@ export default async function CommunityDetailPage({ params }: Props) {
             <div className="bg-navy-900 rounded-xl p-6 text-white">
               <h3 className="font-serif text-lg mb-2">Interested in {community.name}?</h3>
               <p className="text-white/60 text-sm mb-5">Our experts can help you find the perfect property in this community.</p>
-              <Link href="/properties" className="flex items-center justify-center gap-2 w-full py-3 bg-gold text-navy-900 font-semibold rounded-lg hover:bg-amber-500 transition-colors mb-3">
+              {/* FIX: Link filters properties by community name */}
+              <Link href={browsePropertiesHref} className="flex items-center justify-center gap-2 w-full py-3 bg-gold text-navy-900 font-semibold rounded-lg hover:bg-amber-500 transition-colors mb-3">
                 Browse Properties <ArrowLeft className="w-4 h-4 rotate-180" />
               </Link>
               <a href="tel:+971563867270" className="flex items-center justify-center gap-2 w-full py-3 border border-white/20 text-white rounded-lg hover:bg-white/10 transition-colors text-sm">
