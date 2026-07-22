@@ -51,8 +51,8 @@ export function About3G() {
             </h2>
             <p className="text-gray-500 max-w-2xl mx-auto leading-relaxed">
               Dubai&apos;s premier investment portal for off-plan and ready properties. 
-              With 15+ years of experience, we connect investors with premium opportunities 
-              offering tax-free returns, Golden Visa eligibility, and 8-12% rental yields.
+              With 20+ years of experience, we connect investors with premium opportunities 
+              offering tax-free returns, Golden Visa eligibility, and 6-9% rental yields.
             </p>
           </div>
 
