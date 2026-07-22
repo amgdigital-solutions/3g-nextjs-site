@@ -10,17 +10,21 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
-function getFirstImage(image: string | string[] | null): string {
-  if (!image) return "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1200&q=80";
-  if (Array.isArray(image)) return image[0] || "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1200&q=80";
-  return image;
+// Helper: get first image from image field or gallery fallback
+function getFirstImage(image: string | string[] | null, gallery: string[] | null): string {
+  if (image) {
+    if (Array.isArray(image)) return image[0] || "";
+    return image;
+  }
+  if (gallery && gallery.length > 0) return gallery[0];
+  return "";
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const community = await getCommunityBySlug(slug);
   if (!community) return { title: "Community Not Found" };
-  const img = getFirstImage(community.image);
+  const img = getFirstImage(community.image, community.gallery);
   return {
     title: community.meta_title || `${community.name} | 3G Real Estate`,
     description: community.meta_description || community.short_description || `Explore ${community.name} in Dubai.`,
@@ -40,16 +44,15 @@ export default async function CommunityDetailPage({ params }: Props) {
   if (!community) return notFound();
 
   const hasQuickFacts = community.avg_price || community.property_types?.length;
-  const heroImage = getFirstImage(community.image);
+  const heroImage = getFirstImage(community.image, community.gallery);
 
-  // FIX: Link to properties filtered by this community name
   const browsePropertiesHref = `/properties?keyword=${encodeURIComponent(community.name)}`;
 
   return (
     <div className="min-h-screen bg-white pt-[72px]">
       {/* Hero Image */}
       <div className="relative h-[350px] lg:h-[450px]">
-        <Image src={heroImage} alt={community.name} fill className="object-cover" priority sizes="100vw" />
+        <Image src={heroImage || "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1200&q=80"} alt={community.name} fill className="object-cover" priority sizes="100vw" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-10">
           <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-20">
@@ -152,7 +155,6 @@ export default async function CommunityDetailPage({ params }: Props) {
             <div className="bg-navy-900 rounded-xl p-6 text-white">
               <h3 className="font-serif text-lg mb-2">Interested in {community.name}?</h3>
               <p className="text-white/60 text-sm mb-5">Our experts can help you find the perfect property in this community.</p>
-              {/* FIX: Link filters properties by community name */}
               <Link href={browsePropertiesHref} className="flex items-center justify-center gap-2 w-full py-3 bg-gold text-navy-900 font-semibold rounded-lg hover:bg-amber-500 transition-colors mb-3">
                 Browse Properties <ArrowLeft className="w-4 h-4 rotate-180" />
               </Link>
