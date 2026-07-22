@@ -58,15 +58,21 @@ export default function AboutPage() {
       <section className="py-16 lg:py-24 bg-navy-800">
         <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-20">
           <div className="max-w-6xl mx-auto grid lg:grid-cols-[280px_1fr] gap-10 items-start">
-            {/* CEO Photo Placeholder */}
+            {/* CEO Photo */}
             <div className="mx-auto lg:mx-0">
               <div className="w-56 h-64 bg-navy-700 rounded-2xl flex items-center justify-center relative overflow-hidden">
-                <div className="text-center">
-                  <div className="w-20 h-20 bg-gold/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Users className="w-10 h-10 text-gold" />
-                  </div>
-                  <p className="text-white/40 text-sm">Photo Coming Soon</p>
-                </div>
+                <Image
+                  src="/images/adnan-arshad.jpg"
+                  alt="Adnan Arshad - Founder & CEO of 3G Real Estate"
+                  fill
+                  className="object-cover"
+                  sizes="224px"
+                  onError={(e) => {
+                    // Fallback to placeholder if image fails to load
+                    const target = e.currentTarget.parentElement;
+                    if (target) target.innerHTML = '<div class="text-center"><div class="w-20 h-20 bg-gold/20 rounded-full flex items-center justify-center mx-auto mb-4"><svg class="w-10 h-10 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path></svg></div><p class="text-white/40 text-sm">Photo Coming Soon</p></div>';
+                  }}
+                />
               </div>
               <div className="mt-4 text-center lg:text-left">
                 <div className="font-serif text-xl text-white">Adnan Arshad</div>
@@ -114,8 +120,8 @@ export default function AboutPage() {
               <span className="label-gold mb-3 block">Our Story</span>
               <h2 className="heading-md text-navy-950 mb-6">Building Dreams,<br />One Property at a Time</h2>
               <p className="text-gray-600 leading-relaxed mb-4">
-                Since 2005, 3G Real Estate has been at the forefront of Dubai's property market. 
-                What started as a small brokerage has grown into one of Dubai's most trusted real estate agencies, 
+                Since 2005, 3G Real Estate has been at the forefront of Dubai&apos;s property market. 
+                What started as a small brokerage has grown into one of Dubai&apos;s most trusted real estate agencies, 
                 serving investors from across the globe.
               </p>
               <p className="text-gray-600 leading-relaxed mb-4">
@@ -150,7 +156,7 @@ export default function AboutPage() {
               <span className="label-gold mb-3 block">Our Process</span>
               <h2 className="heading-md text-navy-950 mb-4">How We Work</h2>
               <p className="text-gray-500 max-w-2xl mx-auto">
-                Where 3G truly stands apart is our after-sales service. We don't just sell you a property — 
+                Where 3G truly stands apart is our after-sales service. We don&apos;t just sell you a property — 
                 we walk with you through every step that comes after.
               </p>
             </div>
@@ -170,7 +176,7 @@ export default function AboutPage() {
             <div className="mt-10 bg-navy-800 rounded-2xl p-8 text-center text-white">
               <h3 className="font-serif text-xl mb-2">After-Sales is Where We Win</h3>
               <p className="text-white/60 text-sm max-w-xl mx-auto mb-4">
-                Most brokers disappear after the sale. At 3G, that's when our real work begins. 
+                Most brokers disappear after the sale. At 3G, that&apos;s when our real work begins. 
                 From snagging to resale, we stay by your side for the entire journey.
               </p>
               <a href="tel:+971563867270" className="inline-flex items-center gap-2 px-6 py-3 bg-gold text-navy-900 text-sm font-semibold rounded-lg hover:bg-amber-500 transition-colors">
@@ -204,13 +210,6 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
-
-      {/* Team — Hidden for now */}
-      {/*
-      <section className="py-16">
-        ... team section hidden until details available ...
-      </section>
-      */}
 
       {/* CTA */}
       <section className="py-16">
